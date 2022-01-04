@@ -8,6 +8,13 @@ from schemas.response.ecotrail import ResponseEcotrailSchema
 from utils.decorators import permission_required, validate_schema
 
 
+class EcotrailListVisitors(Resource):
+    def get(self):
+        filters = dict(request.args)
+        complains = EcotrailManager.get_all_approved_posts(filters)
+        # Use dump, not load when schema and object are not the same
+        return ResponseEcotrailSchema().dump(complains, many=True)
+
 class CreateEcotrailList(Resource):
     @auth.login_required
     def get(self):
@@ -17,7 +24,6 @@ class CreateEcotrailList(Resource):
         return ResponseEcotrailSchema().dump(complains, many=True)
 
     @auth.login_required
-    @permission_required(RoleType.user)
     @validate_schema(RequestEcotrailSchema)
     def post(self):
         user = auth.current_user()
@@ -29,7 +35,6 @@ class CreateEcotrailList(Resource):
 
 class EcotrailDetail(Resource):
     @auth.login_required
-    @permission_required(RoleType.user)
     @validate_schema(RequestEcotrailSchema)
     def put(self, id_):
         updated_ecotrail = EcotrailManager.update(request.get_json(), id_)
@@ -37,7 +42,6 @@ class EcotrailDetail(Resource):
         return schema.dump(updated_ecotrail)
 
     @auth.login_required
-    @permission_required(RoleType.administrator)
     def delete(self, id_):
         EcotrailManager.delete(id_)
         return {"message": "Success"}, 204

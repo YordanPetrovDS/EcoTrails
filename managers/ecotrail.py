@@ -5,7 +5,7 @@ from constants import TEMP_FILE_FOLDER
 from db import db
 from models import UserModel
 from models.ecotrail import EcotrailModel
-from models.enums import State
+from models.enums import RoleType, State
 from resources import ecotrail
 from services.s3 import S3Service
 from utils.helpers import decode_photo
@@ -17,6 +17,18 @@ s3 = S3Service()
 
 
 class EcotrailManager:
+    @staticmethod
+    def get_all_approved_posts(filters):
+        if filters:
+            ecotrails = (
+                EcotrailModel.query.filter_by(**filters)
+                .filter_by(status=State.approved)
+                .all()
+            )
+        else:
+            ecotrails = EcotrailModel.query.filter_by(status=State.approved).all()
+        return ecotrails
+
     @staticmethod
     def get_all_user_posts(user):
         if isinstance(user, UserModel):
@@ -73,6 +85,12 @@ class EcotrailManager:
     def delete(id_):
         ecotrail = EcotrailModel.query.filter_by(id=id_).first()
         if not ecotrail:
+            raise NotFound("This ecotrail does not exist")
+
+        user = auth.current_user()
+        if (user.role == RoleType.user and not user.id == ecotrail.user_id) or (
+            user.role == RoleType.moderator and not user.id == ecotrail.user_id
+        ):
             raise NotFound("This ecotrail does not exist")
 
         db.session.delete(ecotrail)
