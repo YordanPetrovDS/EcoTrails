@@ -9,7 +9,7 @@ from werkzeug.exceptions import BadRequest, Unauthorized
 mapper = {
     "AdministratorModel": lambda x: AdministratorModel.query.filter_by(id=x).first(),
     "ModeratorModel": lambda x: ModeratorModel.query.filter_by(id=x).first(),
-    "UserModelModel": lambda x: UserModel.query.filter_by(id=x).first(),
+    "UserModel": lambda x: UserModel.query.filter_by(id=x).first()
 }
 
 
@@ -39,9 +39,6 @@ auth = HTTPTokenAuth(scheme="Bearer")
 
 @auth.verify_token
 def verify_token(token):
-    try:
-        user_id, role = AuthManager.decode_token(token)
-        user = mapper[role](user_id)
-        return user
-    except Exception as ex:
-        raise Unauthorized("Invalid or missing token")
+    user_id, role = AuthManager.decode_token(token)
+    user = mapper[role](user_id)
+    return user

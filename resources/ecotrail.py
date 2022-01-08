@@ -11,17 +11,17 @@ from utils.decorators import permission_required, validate_schema
 class EcotrailListVisitors(Resource):
     def get(self):
         filters = dict(request.args)
-        complains = EcotrailManager.get_all_approved_posts(filters)
+        ecotrails = EcotrailManager.get_all_approved_posts(filters)
         # Use dump, not load when schema and object are not the same
-        return ResponseEcotrailSchema().dump(complains, many=True)
+        return ResponseEcotrailSchema().dump(ecotrails, many=True)
 
 class CreateEcotrailList(Resource):
     @auth.login_required
     def get(self):
         user = auth.current_user()
-        complains = EcotrailManager.get_all_user_posts(user)
+        ecotrails = EcotrailManager.get_all_user_posts(user)
         # Use dump, not load when schema and object are not the same
-        return ResponseEcotrailSchema().dump(complains, many=True)
+        return ResponseEcotrailSchema().dump(ecotrails, many=True)
 
     @auth.login_required
     @validate_schema(RequestEcotrailSchema)

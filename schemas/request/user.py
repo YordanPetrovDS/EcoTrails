@@ -1,14 +1,15 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class UserSchema(Schema):
     email = fields.Email(required=True)
-    password = fields.String(required=True)
+    password = fields.String(required=True, validate=validate.Length(min=6, max=255))
 
 
 class RequestRegisterUserSchema(UserSchema):
-    first_name = fields.String(min_length=2, max_length=20, required=True)
-    last_name = fields.String(min_length=2, max_length=20, required=True)
+    first_name = fields.String(required=True, validate=validate.Length(min=2, max=255))
+    last_name = fields.String(required=True, validate=validate.Length(min=2, max=255))
+
 
 class RequestLoginUserSchema(UserSchema):
     pass

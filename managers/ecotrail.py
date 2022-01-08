@@ -18,6 +18,25 @@ s3 = S3Service()
 
 class EcotrailManager:
     @staticmethod
+    def upload_photo_and_return_photo_url(data):
+        encoded_photo = data.pop("photo")
+        extension = data.pop("photo_extension")
+        name = f"{str(uuid.uuid4())}"
+        path = os.path.join(TEMP_FILE_FOLDER, f"{name}.{extension}")
+        photo_name = f"{name}.{extension}"
+        try:
+            decode_photo(encoded_photo, path)
+            photo_url = s3.upload_photo(path, photo_name)
+        except Exception as ex:
+            raise ex
+        finally:
+            os.remove(path)
+        
+        data["photo_url"] = photo_url
+        return data
+    
+    
+    @staticmethod
     def get_all_approved_posts(filters):
         if filters:
             ecotrails = (
@@ -44,21 +63,7 @@ class EcotrailManager:
         Creates a ecotrail.
         Flushes the rows.
         """
-        data["user_id"] = user.id
-        encoded_photo = data.pop("photo")
-        extension = data.pop("photo_extension")
-        name = f"{str(uuid.uuid4())}"
-        path = os.path.join(TEMP_FILE_FOLDER, f"{name}.{extension}")
-
-        try:
-            decode_photo(encoded_photo, path)
-            photo_url = s3.upload_photo(path, name, extension)
-        except Exception as ex:
-            raise ex
-        finally:
-            os.remove(path)
-
-        data["photo_url"] = photo_url
+        data = EcotrailManager.upload_photo_and_return_photo_url(data)
         data["user_id"] = user.id
 
         ecotrail = EcotrailModel(**data)
@@ -67,7 +72,7 @@ class EcotrailManager:
         return ecotrail
 
     @staticmethod
-    def update(ecotrail_data, id_):
+    def update(data, id_):
         ecotrail = EcotrailModel.query.filter_by(id=id_).first()
         if not ecotrail:
             raise NotFound("This ecotrail does not exist")
@@ -76,7 +81,9 @@ class EcotrailManager:
         if not user.id == ecotrail.user_id:
             raise NotFound("This ecotrail does not exist")
 
-        EcotrailModel.query.filter_by(id=id_).update(ecotrail_data)
+        data = EcotrailManager.upload_photo_and_return_photo_url(data)
+        
+        EcotrailModel.query.filter_by(id=id_).update(data)
         db.session.add(ecotrail)
         db.session.flush()
         return ecotrail
