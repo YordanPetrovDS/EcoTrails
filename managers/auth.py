@@ -4,7 +4,7 @@ import jwt
 from decouple import config
 from flask_httpauth import HTTPTokenAuth
 from models.user import AdministratorModel, ModeratorModel, UserModel
-from werkzeug.exceptions import BadRequest, Unauthorized
+from werkzeug.exceptions import BadRequest
 
 mapper = {
     "AdministratorModel": lambda x: AdministratorModel.query.filter_by(id=x).first(),

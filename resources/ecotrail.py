@@ -6,14 +6,18 @@ from models.enums import RoleType
 from schemas.request.ecotrail import RequestEcotrailSchema
 from schemas.response.ecotrail import ResponseEcotrailSchema
 from utils.decorators import permission_required, validate_schema
+from utils.helpers import procces_query_filters
 
 
 class EcotrailListVisitors(Resource):
     def get(self):
         filters = dict(request.args)
+        filters["status"] = "approved"
+        filters = procces_query_filters(filters)
         ecotrails = EcotrailManager.get_all_approved_posts(filters)
         # Use dump, not load when schema and object are not the same
         return ResponseEcotrailSchema().dump(ecotrails, many=True)
+
 
 class CreateEcotrailList(Resource):
     @auth.login_required

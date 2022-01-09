@@ -26,3 +26,10 @@ class CreateModerator(Resource):
         data = request.get_json()
         UserManager.create_moderator(data)
         return 201
+    
+class DeleteModerator(Resource):
+    @auth.login_required
+    @permission_required(RoleType.administrator)
+    def delete(self, id_):
+        UserManager.delete_moderator(id_)
+        return 204

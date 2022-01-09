@@ -1,7 +1,7 @@
 from decouple import config
 
 
-class DevApplication:
+class DevelopmentConfig:
     DEBUG = True
     TESTING = True
     SQLALCHEMY_DATABASE_URI = (

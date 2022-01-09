@@ -20,7 +20,7 @@ class LoginUser(Resource):
     def post(self):
         data = request.get_json()
         token = UserManager.login_user(data)
-        return {"token": token, "role": "user"}
+        return {"token": token, "role": "user"}, 200
 
 
 class LoginModerator(Resource):
@@ -28,7 +28,7 @@ class LoginModerator(Resource):
     def post(self):
         data = request.get_json()
         token = UserManager.login_moderator(data)
-        return {"token": token, "role": "moderator"}
+        return {"token": token, "role": "moderator"}, 200
 
 
 class LoginAdministrator(Resource):
@@ -36,4 +36,4 @@ class LoginAdministrator(Resource):
     def post(self):
         data = request.get_json()
         token = UserManager.login_admin(data)
-        return {"token": token, "role": "administator"}
+        return {"token": token, "role": "administator"}, 200

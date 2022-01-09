@@ -6,6 +6,6 @@ class BaseEcotrailSchema(Schema):
     description = fields.String(required=True)
     area = fields.String(required=True)
     mountain = fields.String(required=True)
-    distance = fields.Float(required=True)
-    difference_in_altitude = fields.Float(required=True)
+    length = fields.Float(required=True)
+    denivelation = fields.Float(required=True)
     difficulty = fields.Integer(required=True)

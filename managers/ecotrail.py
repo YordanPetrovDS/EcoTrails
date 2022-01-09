@@ -1,51 +1,17 @@
-import os
-import uuid
-
-from constants import TEMP_FILE_FOLDER
 from db import db
 from models import UserModel
 from models.ecotrail import EcotrailModel
 from models.enums import RoleType, State
-from resources import ecotrail
-from services.s3 import S3Service
-from utils.helpers import decode_photo
+from utils.helpers import upload_photo_and_return_photo_url
 from werkzeug.exceptions import NotFound
 
 from managers.auth import auth
 
-s3 = S3Service()
-
 
 class EcotrailManager:
     @staticmethod
-    def upload_photo_and_return_photo_url(data):
-        encoded_photo = data.pop("photo")
-        extension = data.pop("photo_extension")
-        name = f"{str(uuid.uuid4())}"
-        path = os.path.join(TEMP_FILE_FOLDER, f"{name}.{extension}")
-        photo_name = f"{name}.{extension}"
-        try:
-            decode_photo(encoded_photo, path)
-            photo_url = s3.upload_photo(path, photo_name)
-        except Exception as ex:
-            raise ex
-        finally:
-            os.remove(path)
-        
-        data["photo_url"] = photo_url
-        return data
-    
-    
-    @staticmethod
     def get_all_approved_posts(filters):
-        if filters:
-            ecotrails = (
-                EcotrailModel.query.filter_by(**filters)
-                .filter_by(status=State.approved)
-                .all()
-            )
-        else:
-            ecotrails = EcotrailModel.query.filter_by(status=State.approved).all()
+        ecotrails = EcotrailModel.query.filter(*filters).all()
         return ecotrails
 
     @staticmethod
@@ -63,7 +29,7 @@ class EcotrailManager:
         Creates a ecotrail.
         Flushes the rows.
         """
-        data = EcotrailManager.upload_photo_and_return_photo_url(data)
+        data = upload_photo_and_return_photo_url(data)
         data["user_id"] = user.id
 
         ecotrail = EcotrailModel(**data)
@@ -82,7 +48,7 @@ class EcotrailManager:
             raise NotFound("This ecotrail does not exist")
 
         data = EcotrailManager.upload_photo_and_return_photo_url(data)
-        
+
         EcotrailModel.query.filter_by(id=id_).update(data)
         db.session.add(ecotrail)
         db.session.flush()
@@ -102,7 +68,8 @@ class EcotrailManager:
 
         db.session.delete(ecotrail)
         db.session.flush()
-
+        return
+    
     @staticmethod
     def approve(id_):
         ecotrail = EcotrailModel.query.filter_by(id=id_).first()

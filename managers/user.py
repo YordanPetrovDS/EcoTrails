@@ -1,8 +1,9 @@
 from db import db
-from managers.auth import AuthManager
 from models.user import AdministratorModel, ModeratorModel, UserModel
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from managers.auth import AuthManager
 
 
 class UserManager:
@@ -73,11 +74,16 @@ class UserManager:
         :param user_data: dict
         :return: token
         """
-        user_data["password"] = generate_password_hash(user_data["password"], method="sha256")
+        user_data["password"] = generate_password_hash(
+            user_data["password"], method="sha256"
+        )
         admin = AdministratorModel(**user_data)
-        db.session.add(admin)
-        db.session.flush()
-        return AuthManager.encode_token(admin)
+        try:
+            db.session.add(admin)
+            db.session.flush()
+            return AuthManager.encode_token(admin)
+        except Exception as ex:
+            raise BadRequest(str(ex))
 
     @staticmethod
     def create_moderator(user_data):
@@ -86,8 +92,22 @@ class UserManager:
         :param user_data: dict
         :return: token
         """
-        user_data["password"] = generate_password_hash(user_data["password"], method="sha256")
+        user_data["password"] = generate_password_hash(
+            user_data["password"], method="sha256"
+        )
         moderator = ModeratorModel(**user_data)
-        db.session.add(moderator)
+        try:
+            db.session.add(moderator)
+            db.session.flush()
+            return AuthManager.encode_token(moderator)
+        except Exception as ex:
+            raise BadRequest(str(ex))
+
+    @staticmethod
+    def delete_moderator(id_):
+        moderator = ModeratorModel.query.filter_by(id=id_).first()
+        if not moderator:
+            raise NotFound("This moderator does not exist")
+        db.session.delete(moderator)
         db.session.flush()
-        return AuthManager.encode_token(moderator)
+        return
