@@ -16,13 +16,3 @@ class BaseUserModel(db.Model):
 class UserModel(BaseUserModel):
     __tablename__ = "users"
     role = db.Column(db.Enum(RoleType), default=RoleType.user, nullable=False)
-
-
-class ModeratorModel(BaseUserModel):
-    __tablename__ = "moderators"
-    role = db.Column(db.Enum(RoleType), default=RoleType.moderator, nullable=False)
-
-
-class AdministratorModel(BaseUserModel):
-    __tablename__ = "administrators"
-    role = db.Column(db.Enum(RoleType), default=RoleType.administrator, nullable=False)

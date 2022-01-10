@@ -20,10 +20,10 @@ api = Api(app)
 [api.add_resource(*r) for r in routes]
 
 
-@app.before_first_request
-def create_tables():
-    db.init_app(app)
-    db.create_all()
+# @app.before_first_request
+# def create_tables():
+#     db.init_app(app)
+#     db.create_all()
 
 
 @app.after_request

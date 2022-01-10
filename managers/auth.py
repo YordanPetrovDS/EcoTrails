@@ -3,23 +3,28 @@ from datetime import datetime, timedelta
 import jwt
 from decouple import config
 from flask_httpauth import HTTPTokenAuth
-from models.user import AdministratorModel, ModeratorModel, UserModel
+from models.enums import RoleType
+from models.user import UserModel
 from werkzeug.exceptions import BadRequest
 
 mapper = {
-    "AdministratorModel": lambda x: AdministratorModel.query.filter_by(id=x).first(),
-    "ModeratorModel": lambda x: ModeratorModel.query.filter_by(id=x).first(),
-    "UserModel": lambda x: UserModel.query.filter_by(id=x).first()
+    "administrator": lambda x: UserModel.query.filter_by(
+        id=x, role=RoleType.administrator
+    ).first(),
+    "moderator": lambda x: UserModel.query.filter_by(
+        id=x, role=RoleType.moderator
+    ).first(),
+    "user": lambda x: UserModel.query.filter_by(id=x, role=RoleType.user).first(),
 }
 
 
 class AuthManager:
     @staticmethod
-    def encode_token(user):
+    def encode_token(user,role):
         payload = {
             "sub": user.id,
             "exp": datetime.utcnow() + timedelta(days=100),
-            "role": user.__class__.__name__,
+            "role": user.role.name,
         }
         return jwt.encode(payload, key=config("JWT_key"), algorithm="HS256")
 

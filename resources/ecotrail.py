@@ -65,3 +65,16 @@ class RejectEcotrail(Resource):
     def put(self, id_):
         EcotrailManager.reject(id_)
         return 200
+
+
+class VisitedEcotrail(Resource):
+    @auth.login_required
+    def put(self, id_):
+        EcotrailManager.visited(id_)
+        return 200
+
+class PlannedEcotrail(Resource):
+    @auth.login_required
+    def put(self, id_):
+        EcotrailManager.planned(id_)
+        return 200

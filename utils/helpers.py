@@ -5,9 +5,10 @@ import uuid
 
 from constants import TEMP_FILE_FOLDER
 from models.ecotrail import EcotrailModel
+from models.enums import State
 from services.s3 import S3Service
 from sqlalchemy.orm import class_mapper
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 
 s3 = S3Service()
 
@@ -67,7 +68,6 @@ def procces_query_filters(filter_by):
             return column.between(a, b)
         """ default __eq__ """
         return column.__eq__(v)
-
     filters = []
     mapper = class_mapper(EcotrailModel)
     for k, v in filter_by.items():
@@ -75,3 +75,26 @@ def procces_query_filters(filter_by):
             continue
         filters.append(computed_operator(mapper.columns[k], "{}".format(v)))
     return filters
+
+
+
+
+
+def copy_ecotrail_to_respective_table(ecotrail_id: int, user: object, table: object):
+    ecotrail = EcotrailModel.query.filter_by(id=ecotrail_id).first()
+    if ecotrail.status != State.approved:
+        raise NotFound("This ecotrail is not approved, and should not be seen!")
+
+    if not ecotrail:
+        raise NotFound("This ecotrail does not exist")
+
+    ecotrail_dict = {
+        c.name: getattr(ecotrail, c.name) for c in ecotrail.__table__.columns
+    }
+
+    ecotrail_dict["ecotrail_id"] = ecotrail_id
+    ecotrail_dict["user_id"] = user.id
+    ecotrail_dict.pop("id")
+    ecotrail_dict.pop("create_on")
+    ecotrail_dict.pop("status")
+    return table(**ecotrail_dict)

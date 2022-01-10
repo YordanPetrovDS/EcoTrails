@@ -13,11 +13,3 @@ class RequestRegisterUserSchema(UserSchema):
 
 class RequestLoginUserSchema(UserSchema):
     pass
-
-
-class RequestCreateAdminSchema(RequestRegisterUserSchema):
-    pass
-
-
-class RequestCreateModeratorSchema(RequestRegisterUserSchema):
-    pass

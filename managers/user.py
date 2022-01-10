@@ -1,5 +1,6 @@
 from db import db
-from models.user import AdministratorModel, ModeratorModel, UserModel
+from models.enums import RoleType
+from models.user import UserModel
 from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -28,7 +29,9 @@ class UserManager:
         :return: token
         """
         try:
-            user = UserModel.query.filter_by(email=user_data["email"]).first()
+            user = UserModel.query.filter_by(
+                email=user_data["email"], role=RoleType.user
+            ).first()
             if user and check_password_hash(user.password, user_data["password"]):
                 return AuthManager.encode_token(user)
             raise Exception
@@ -43,7 +46,9 @@ class UserManager:
         :return: token
         """
         try:
-            moderator = ModeratorModel.query.filter_by(email=user_data["email"]).first()
+            moderator = UserModel.query.filter_by(
+                email=user_data["email"], role=RoleType.moderator
+            ).first()
             if moderator and check_password_hash(
                 moderator.password, user_data["password"]
             ):
@@ -60,7 +65,9 @@ class UserManager:
         :return: token
         """
         try:
-            admin = AdministratorModel.query.filter_by(email=user_data["email"]).first()
+            admin = UserModel.query.filter_by(
+                email=user_data["email"], role=RoleType.administrator
+            ).first()
             if admin and check_password_hash(admin.password, user_data["password"]):
                 return AuthManager.encode_token(admin)
             raise Exception
@@ -68,44 +75,30 @@ class UserManager:
             raise BadRequest("Invalid email or password")
 
     @staticmethod
-    def create_admin(user_data):
-        """
-        Hashes the plain password
-        :param user_data: dict
-        :return: token
-        """
-        user_data["password"] = generate_password_hash(
-            user_data["password"], method="sha256"
-        )
-        admin = AdministratorModel(**user_data)
-        try:
-            db.session.add(admin)
-            db.session.flush()
-            return AuthManager.encode_token(admin)
-        except Exception as ex:
-            raise BadRequest(str(ex))
+    def create_admin(id_):
+        user = UserModel.query.filter_by(id=id_).first()
+        if not user:
+            raise NotFound("This user does not exist")
+
+        UserModel.query.filter_by(id=id_).update({"role": RoleType.administrator})
+        db.session.add(user)
+        db.session.flush()
+        return user
 
     @staticmethod
-    def create_moderator(user_data):
-        """
-        Hashes the plain password
-        :param user_data: dict
-        :return: token
-        """
-        user_data["password"] = generate_password_hash(
-            user_data["password"], method="sha256"
-        )
-        moderator = ModeratorModel(**user_data)
-        try:
-            db.session.add(moderator)
-            db.session.flush()
-            return AuthManager.encode_token(moderator)
-        except Exception as ex:
-            raise BadRequest(str(ex))
+    def create_moderator(id_):
+        user = UserModel.query.filter_by(id=id_).first()
+        if not user:
+            raise NotFound("This user does not exist")
+
+        UserModel.query.filter_by(id=id_).update({"role": RoleType.moderator})
+        db.session.add(user)
+        db.session.flush()
+        return user
 
     @staticmethod
     def delete_moderator(id_):
-        moderator = ModeratorModel.query.filter_by(id=id_).first()
+        moderator = UserModel.query.filter_by(id=id_, role="moderator").first()
         if not moderator:
             raise NotFound("This moderator does not exist")
         db.session.delete(moderator)
