@@ -21,9 +21,9 @@ class CreateModerator(Resource):
         return 201
 
 
-class DeleteModerator(Resource):
+class DemoteModerator(Resource):
     @auth.login_required
     @permission_required(RoleType.administrator)
-    def delete(self, id_):
-        UserManager.delete_moderator(id_)
-        return 204
+    def put(self, id_):
+        UserManager.demote_moderator(id_)
+        return 201

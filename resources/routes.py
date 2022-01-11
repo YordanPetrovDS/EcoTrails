@@ -1,10 +1,14 @@
-from resources.admin import CreateAdmin, CreateModerator, DeleteModerator
+from resources.admin import CreateAdmin, CreateModerator, DemoteModerator
 from resources.auth import LoginAdministrator, LoginModerator, LoginUser, RegisterUser
 from resources.ecotrail import (
     ApproveEcotrail,
     CreateEcotrailList,
+    DeletePlannedEcotrail,
+    DeleteVisitedEcotrail,
     EcotrailDetail,
     EcotrailListVisitors,
+    GetPlannedEcotrail,
+    GetVisitedEcotrail,
     PlannedEcotrail,
     RejectEcotrail,
     VisitedEcotrail,
@@ -22,7 +26,11 @@ routes = (
     (CreateModerator, "/admins/users/<int:id_>/create-moderator"),
     (LoginModerator, "/moderators/login"),
     (LoginAdministrator, "/admins/login"),
-    (DeleteModerator, "/admins/moderators/<int:id_>"),
+    (DemoteModerator, "/admins/moderators/<int:id_>"),
     (VisitedEcotrail, "/ecotrails/<int:id_>/visited"),
     (PlannedEcotrail, "/ecotrails/<int:id_>/planned"),
+    (GetVisitedEcotrail, "/profile/ecotrails/visited"),
+    (GetPlannedEcotrail, "/profile/ecotrails/planned"),
+    (DeleteVisitedEcotrail, "/profile/ecotrails/visited/<int:id_>"),
+    (DeletePlannedEcotrail, "/profile/ecotrails/planned/<int:id_>"),
 )

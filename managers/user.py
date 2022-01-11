@@ -79,6 +79,8 @@ class UserManager:
         user = UserModel.query.filter_by(id=id_).first()
         if not user:
             raise NotFound("This user does not exist")
+        if user.role == RoleType.moderator:
+            raise BadRequest("This user is already an admin")
 
         UserModel.query.filter_by(id=id_).update({"role": RoleType.administrator})
         db.session.add(user)
@@ -90,6 +92,8 @@ class UserManager:
         user = UserModel.query.filter_by(id=id_).first()
         if not user:
             raise NotFound("This user does not exist")
+        if user.role == RoleType.moderator:
+            raise BadRequest("This user is already a moderator")
 
         UserModel.query.filter_by(id=id_).update({"role": RoleType.moderator})
         db.session.add(user)
@@ -97,10 +101,14 @@ class UserManager:
         return user
 
     @staticmethod
-    def delete_moderator(id_):
+    def demote_moderator(id_):
         moderator = UserModel.query.filter_by(id=id_, role="moderator").first()
         if not moderator:
             raise NotFound("This moderator does not exist")
-        db.session.delete(moderator)
+
+        UserModel.query.filter_by(id=id_, role="moderator").update(
+            {"role": RoleType.user}
+        )
+        db.session.add(moderator)
         db.session.flush()
-        return
+        return moderator

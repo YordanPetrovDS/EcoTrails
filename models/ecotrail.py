@@ -17,6 +17,9 @@ class BaserEcotrailModel(db.Model):
     denivelation = db.Column(db.Integer)
     difficulty = db.Column(db.Integer, nullable=False)
 
+    def serialize(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class EcotrailModel(BaserEcotrailModel):
     __tablename__ = "ecotrails"

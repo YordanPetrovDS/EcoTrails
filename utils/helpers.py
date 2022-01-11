@@ -68,6 +68,7 @@ def procces_query_filters(filter_by):
             return column.between(a, b)
         """ default __eq__ """
         return column.__eq__(v)
+
     filters = []
     mapper = class_mapper(EcotrailModel)
     for k, v in filter_by.items():
@@ -77,20 +78,19 @@ def procces_query_filters(filter_by):
     return filters
 
 
-
-
-
-def copy_ecotrail_to_respective_table(ecotrail_id: int, user: object, table: object):
+def copy_ecotrail_to_respective_table(ecotrail_id, user, table):
     ecotrail = EcotrailModel.query.filter_by(id=ecotrail_id).first()
-    if ecotrail.status != State.approved:
-        raise NotFound("This ecotrail is not approved, and should not be seen!")
 
     if not ecotrail:
         raise NotFound("This ecotrail does not exist")
+    if ecotrail.status != State.approved:
+        raise NotFound("This ecotrail is not approved, and should not be seen!")
+    if table.query.filter_by(ecotrail_id=ecotrail_id).first():
+        raise BadRequest(
+            f"This ecotrails is already {table.__tablename__.split('_')[1]}!"
+        )
 
-    ecotrail_dict = {
-        c.name: getattr(ecotrail, c.name) for c in ecotrail.__table__.columns
-    }
+    ecotrail_dict = ecotrail.serialize()
 
     ecotrail_dict["ecotrail_id"] = ecotrail_id
     ecotrail_dict["user_id"] = user.id

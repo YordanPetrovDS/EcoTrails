@@ -4,7 +4,11 @@ from managers.auth import auth
 from managers.ecotrail import EcotrailManager
 from models.enums import RoleType
 from schemas.request.ecotrail import RequestEcotrailSchema
-from schemas.response.ecotrail import ResponseEcotrailSchema
+from schemas.response.ecotrail import (
+    ResponseEcotrailSchema,
+    ResponsePlannedEcotrailSchema,
+    ResponseVisitedEcotrailSchema,
+)
 from utils.decorators import permission_required, validate_schema
 from utils.helpers import procces_query_filters
 
@@ -73,8 +77,40 @@ class VisitedEcotrail(Resource):
         EcotrailManager.visited(id_)
         return 200
 
+
 class PlannedEcotrail(Resource):
     @auth.login_required
     def put(self, id_):
         EcotrailManager.planned(id_)
         return 200
+
+
+class GetVisitedEcotrail(Resource):
+    @auth.login_required
+    def get(self):
+        user = auth.current_user()
+        ecotrails = EcotrailManager.get_all_visited_ecotrails(user)
+        # Use dump, not load when schema and object are not the same
+        return ResponsePlannedEcotrailSchema().dump(ecotrails, many=True)
+
+
+class DeleteVisitedEcotrail(Resource):
+    @auth.login_required
+    def delete(self, id_):
+        EcotrailManager.delete_visited_ecotrail(id_)
+        return {"message": "Success"}, 204
+
+
+class GetPlannedEcotrail(Resource):
+    @auth.login_required
+    def get(self):
+        user = auth.current_user()
+        ecotrails = EcotrailManager.get_all_visited_ecotrails(user)
+        return ResponseVisitedEcotrailSchema().dump(ecotrails, many=True)
+
+
+class DeletePlannedEcotrail(Resource):
+    @auth.login_required
+    def delete(self, id_):
+        EcotrailManager.delete_planned_ecotrail(id_)
+        return {"message": "Success"}, 204
