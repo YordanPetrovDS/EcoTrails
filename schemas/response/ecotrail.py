@@ -10,10 +10,12 @@ class ResponseEcotrailSchema(BaseEcotrailSchema):
     create_on = fields.DateTime(required=True)
     photo_url = fields.String(required=True, validate=validate.Length(max=255))
 
+
 class ResponseVisitedEcotrailSchema(BaseEcotrailSchema):
     id = fields.Integer(required=True)
     photo_url = fields.String(required=True, validate=validate.Length(max=255))
-    
+
+
 class ResponsePlannedEcotrailSchema(BaseEcotrailSchema):
     id = fields.Integer(required=True)
     photo_url = fields.String(required=True, validate=validate.Length(max=255))

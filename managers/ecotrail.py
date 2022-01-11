@@ -128,17 +128,21 @@ class EcotrailManager:
     @staticmethod
     def delete_visited_ecotrail(id_):
         user = auth.current_user()
-        ecotrail = EcotrailVisitedModel.query.filter_by(ecotrail_id=id_, user_id=user.id).first()
+        ecotrail = EcotrailVisitedModel.query.filter_by(
+            ecotrail_id=id_, user_id=user.id
+        ).first()
         if not ecotrail:
             raise NotFound("This ecotrail does not exist")
         db.session.delete(ecotrail)
         db.session.flush()
         return ecotrail
-    
+
     @staticmethod
     def delete_planned_ecotrail(id_):
         user = auth.current_user()
-        ecotrail = EcotrailPlannedModel.query.filter_by(ecotrail_id=id_, user_id=user.id).first()
+        ecotrail = EcotrailPlannedModel.query.filter_by(
+            ecotrail_id=id_, user_id=user.id
+        ).first()
         if not ecotrail:
             raise NotFound("This ecotrail does not exist")
         db.session.delete(ecotrail)

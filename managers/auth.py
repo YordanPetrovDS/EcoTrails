@@ -20,7 +20,7 @@ mapper = {
 
 class AuthManager:
     @staticmethod
-    def encode_token(user,role):
+    def encode_token(user, role):
         payload = {
             "sub": user.id,
             "exp": datetime.utcnow() + timedelta(days=100),
