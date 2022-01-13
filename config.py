@@ -1,9 +1,10 @@
 from decouple import config
 from flask import Flask
-from db import db
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api
+
+from db import db
 from resources.routes import routes
 
 

@@ -24,7 +24,7 @@ class AuthManager:
         payload = {
             "sub": user.id,
             "exp": datetime.utcnow() + timedelta(days=100),
-            "role": user.role.name,
+            "role": user.role.value,
         }
         return jwt.encode(payload, key=config("JWT_key"), algorithm="HS256")
 

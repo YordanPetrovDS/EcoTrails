@@ -3,9 +3,10 @@ import json
 from config import create_app
 from db import db
 from flask_testing import TestCase
+from models.enums import RoleType
 
-from tests.base import generate_token
 from tests.factories import UserFactory
+from tests.helpers import generate_token
 
 
 class TestApplication(TestCase):
@@ -62,7 +63,7 @@ class TestApplication(TestCase):
 
     def test_permission_required_endpoints_admin_access_raises(self):
         """
-        Test if a user is an admin when register endpoint is hit.
+        Test if a user is an admin when registered endpoint is hit.
         """
         url_methods = [
             "/admins/users/1/create-admin",
@@ -79,9 +80,19 @@ class TestApplication(TestCase):
             }
             self.assert403(resp, expected_message)
 
+            moderator = UserFactory()
+            moderator.role = RoleType.moderator
+            token = generate_token(moderator)
+            headers = {"Authorization": f"Bearer {token}"}
+            resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            expected_message = {
+                "message": "You do not have the rights to access this resource"
+            }
+            self.assert403(resp, expected_message)
+
     def test_permission_required_endpoints_moderator_access_raises(self):
         """
-        Test if a user is an moderator when register endpoint is hit.
+        Test if a user is a moderator when registered endpoint is hit.
         """
         url_methods = [
             "/moderators/ecotrails/1/approve",
@@ -90,6 +101,16 @@ class TestApplication(TestCase):
         for url in url_methods:
             user = UserFactory()
             token = generate_token(user)
+            headers = {"Authorization": f"Bearer {token}"}
+            resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            expected_message = {
+                "message": "You do not have the rights to access this resource"
+            }
+            self.assert403(resp, expected_message)
+
+            admin = UserFactory()
+            admin.role = RoleType.administrator
+            token = generate_token(admin)
             headers = {"Authorization": f"Bearer {token}"}
             resp = self.client.put(url, data=json.dumps({}), headers=headers)
             expected_message = {

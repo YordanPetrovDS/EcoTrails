@@ -35,7 +35,7 @@ class CreateEcotrailList(Resource):
         data = request.get_json()
         ecotrail = EcotrailManager.create(data, user)
         # Use dump, not load when schema and object are not the same
-        return ResponseEcotrailSchema().dump(ecotrail)
+        return ResponseEcotrailSchema().dump(ecotrail), 201
 
 
 class EcotrailDetail(Resource):

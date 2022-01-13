@@ -43,10 +43,29 @@ class TestAuth(TestCase):
         assert resp.status_code == 201
         assert "token" in resp.json
 
-        # users = UserModel.query.all()
-        # assert len(users) == 1
+        users = UserModel.query.all()
+        assert len(users) == 1
 
         user = object_as_dict(users[0])
         user.pop("password")
         data.pop("password")
         assert user == {"id": user["id"], "role": RoleType.user, **data}
+
+    def test_user_already_exists_raises(self):
+        url = "/register"
+        data = {
+            "email": "DjordjanoPetkov@abv.bg",
+            "password": "djordjano123",
+            "first_name": "Djordjano",
+            "last_name": "Petkov",
+        }
+
+        resp = self.client.post(url, data=json.dumps(data), headers=self.headers)
+
+        assert resp.status_code == 201
+
+        # Make the same request but user already exists
+
+        resp = self.client.post(url, data=json.dumps(data), headers=self.headers)
+        assert resp.status_code == 400
+        assert resp.json == {"message": "Please login"}

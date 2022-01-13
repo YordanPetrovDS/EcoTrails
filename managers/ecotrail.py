@@ -7,7 +7,7 @@ from utils.helpers import (
     procces_query_filters,
     upload_photo_and_return_photo_url,
 )
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import NotFound
 
 from managers.auth import auth
 

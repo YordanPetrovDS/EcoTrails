@@ -24,9 +24,8 @@ def decode_photo(encoded_photo, path):
 def upload_photo_and_return_photo_url(data):
     encoded_photo = data.pop("photo")
     extension = data.pop("photo_extension")
-    name = f"{str(uuid.uuid4())}"
-    path = os.path.join(TEMP_FILE_FOLDER, f"{name}.{extension}")
-    photo_name = f"{name}.{extension}"
+    photo_name = f"{str(uuid.uuid4())}.{extension}"
+    path = os.path.join(TEMP_FILE_FOLDER, photo_name)
 
     try:
         decode_photo(encoded_photo, path)
