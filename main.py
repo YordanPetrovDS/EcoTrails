@@ -1,23 +1,10 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_migrate import Migrate
-from flask_restful import Api
 from psycopg2.errorcodes import UNIQUE_VIOLATION
 from werkzeug.exceptions import BadRequest, InternalServerError
 
-from config import DevelopmentConfig
+from config import create_app
 from db import db
-from resources.routes import routes
 
-app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
-db.init_app(app)
-
-migrate = Migrate(app, db)
-CORS(app)
-api = Api(app)
-
-[api.add_resource(*r) for r in routes]
+app = create_app()
 
 
 @app.before_first_request

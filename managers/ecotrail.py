@@ -4,9 +4,10 @@ from models.ecotrail import EcotrailModel, EcotrailPlannedModel, EcotrailVisited
 from models.enums import RoleType, State
 from utils.helpers import (
     copy_ecotrail_to_respective_table,
+    procces_query_filters,
     upload_photo_and_return_photo_url,
 )
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import BadRequest, NotFound
 
 from managers.auth import auth
 
@@ -14,6 +15,8 @@ from managers.auth import auth
 class EcotrailManager:
     @staticmethod
     def get_all_approved_posts(filters):
+        filters["status"] = "approved"
+        filters = procces_query_filters(filters, EcotrailModel)
         ecotrails = EcotrailModel.query.filter(*filters).all()
         return ecotrails
 

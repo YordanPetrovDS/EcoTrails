@@ -1,2 +1,2 @@
-from models.user import *
-from models.ecotrail import *
+from .ecotrail import *
+from .user import *

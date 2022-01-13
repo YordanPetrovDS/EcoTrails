@@ -40,7 +40,7 @@ def upload_photo_and_return_photo_url(data):
     return data
 
 
-def procces_query_filters(filter_by):
+def procces_query_filters(filter_by, table):
     def computed_operator(column, v):
         if re.match(r"^!", v):
             """__ne__"""
@@ -70,7 +70,7 @@ def procces_query_filters(filter_by):
         return column.__eq__(v)
 
     filters = []
-    mapper = class_mapper(EcotrailModel)
+    mapper = class_mapper(table)
     for k, v in filter_by.items():
         if not hasattr(mapper.columns, k):
             continue
