@@ -33,7 +33,7 @@ jobs:
         DB_PASSWORD: 'Newlife7'
         DB_PORT: '5432'
         DB_NAME: 'test_db'
-        JWT_key: "inthewoods777"
+        JWT_key: ${{ secrets.JWT_KEY }}
         AWS_ACCESS_KEY: ""
         AWS_SECRET: ""
         AWS_BUCKET: ""
@@ -44,6 +44,7 @@ jobs:
         POSTGRES_USER: postgres
         POSTGRES_DB: test_db
       run: |
+        cd ..
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         export PGPASSWORD="Newlife7"
