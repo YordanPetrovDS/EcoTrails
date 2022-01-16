@@ -33,6 +33,7 @@ jobs:
         DB_PASSWORD: 'Newlife7'
         DB_PORT: '5432'
         DB_NAME: 'test_db'
+        TEST_DB_NAME: 'test_db'
         JWT_key: ${{ secrets.JWT_KEY }}
         AWS_ACCESS_KEY: ""
         AWS_SECRET: ""
