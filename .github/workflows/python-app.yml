@@ -33,7 +33,7 @@ jobs:
         DB_PASSWORD: 'Newlife7'
         DB_PORT: '5432'
         DB_NAME: 'test_db'
-        JWT_KEY: "inthewoods777"
+        JWT_key: "inthewoods777"
         AWS_ACCESS_KEY: ""
         AWS_SECRET: ""
         AWS_BUCKET: ""
