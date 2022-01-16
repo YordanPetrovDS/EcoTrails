@@ -1,7 +1,8 @@
 from db import db
 from models.enums import RoleType
 from models.user import UserModel
-from werkzeug.exceptions import BadRequest, NotFound
+from psycopg2.errorcodes import UNIQUE_VIOLATION
+from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from managers.auth import AuthManager
@@ -17,8 +18,16 @@ class UserManager:
         """
         user_data["password"] = generate_password_hash(user_data["password"])
         user = UserModel(**user_data)
-        db.session.add(user)
-        db.session.flush()
+        try:
+            db.session.add(user)
+            db.session.flush()
+        except Exception as ex:
+            if ex.orig.pgcode == UNIQUE_VIOLATION:
+                raise BadRequest("Please login")
+            else:
+                raise InternalServerError(
+                    "Server is unavailable. Please try again later"
+                )
         return AuthManager.encode_token(user)
 
     @staticmethod

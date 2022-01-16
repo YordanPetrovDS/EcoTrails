@@ -66,15 +66,19 @@ class TestApplication(TestCase):
         Test if a user is an admin when registered endpoint is hit.
         """
         url_methods = [
-            "/admins/users/1/create-admin",
-            "/admins/users/1/create-moderator",
-            "/admins/moderators/1",
+            ("/admins/users/1/create-admin", "PUT"),
+            ("/admins/users/1/create-moderator", "PUT"),
+            ("/admins/moderators/1", "PUT"),
+            ("/admins/ecotrails/1", "DELETE"),
         ]
-        for url in url_methods:
+        for url, method in url_methods:
             user = UserFactory()
             token = generate_token(user)
             headers = {"Authorization": f"Bearer {token}"}
-            resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            if method == "PUT":
+                resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            else:
+                resp = self.client.delete(url, headers=headers)
             expected_message = {
                 "message": "You do not have the rights to access this resource"
             }
@@ -84,7 +88,10 @@ class TestApplication(TestCase):
             moderator.role = RoleType.moderator
             token = generate_token(moderator)
             headers = {"Authorization": f"Bearer {token}"}
-            resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            if method == "PUT":
+                resp = self.client.put(url, data=json.dumps({}), headers=headers)
+            else:
+                resp = self.client.delete(url, headers=headers)
             expected_message = {
                 "message": "You do not have the rights to access this resource"
             }

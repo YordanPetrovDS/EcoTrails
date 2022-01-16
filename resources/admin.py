@@ -35,4 +35,4 @@ class DeleteUserEcotrailPost(Resource):
     @permission_required(RoleType.administrator)
     def delete(self, id_):
         EcotrailManager.delete_user_ecotrail(id_)
-        return {"message": "Success"}, 204
+        return 204
