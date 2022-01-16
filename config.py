@@ -26,6 +26,10 @@ class DevelopmentConfig:
 #     )
 
 
+def func(x, y):
+    return x, y
+
+
 class TestingConfig:
     DEBUG = True
     TESTING = True
