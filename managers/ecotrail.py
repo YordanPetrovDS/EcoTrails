@@ -1,7 +1,7 @@
 from db import db
 from models import UserModel
 from models.ecotrail import EcotrailModel, EcotrailPlannedModel, EcotrailVisitedModel
-from models.enums import RoleType, State
+from models.enums import State
 from utils.helpers import (
     copy_ecotrail_to_respective_table,
     procces_query_filters,
@@ -45,12 +45,9 @@ class EcotrailManager:
 
     @staticmethod
     def update(data, id_):
-        ecotrail = EcotrailModel.query.filter_by(id=id_).first()
-        if not ecotrail:
-            raise NotFound("This ecotrail does not exist")
         user = auth.current_user()
-
-        if not user.id == ecotrail.user_id:
+        ecotrail = EcotrailModel.query.filter_by(id=id_, user_id=user.id).first()
+        if not ecotrail:
             raise NotFound("This ecotrail does not exist")
 
         data = upload_photo_and_return_photo_url(data)
@@ -62,16 +59,19 @@ class EcotrailManager:
 
     @staticmethod
     def delete(id_):
+        user = auth.current_user()
+        ecotrail = EcotrailModel.query.filter_by(id=id_, user_id=user.id).first()
+        if not ecotrail:
+            raise NotFound("This ecotrail does not exist")
+        db.session.delete(ecotrail)
+        db.session.flush()
+        return ecotrail
+
+    @staticmethod
+    def delete_user_ecotrail(id_):
         ecotrail = EcotrailModel.query.filter_by(id=id_).first()
         if not ecotrail:
             raise NotFound("This ecotrail does not exist")
-
-        user = auth.current_user()
-        if (user.role == RoleType.user and not user.id == ecotrail.user_id) or (
-            user.role == RoleType.moderator and not user.id == ecotrail.user_id
-        ):
-            raise NotFound("This ecotrail does not exist")
-
         db.session.delete(ecotrail)
         db.session.flush()
         return ecotrail

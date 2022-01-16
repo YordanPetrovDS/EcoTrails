@@ -19,21 +19,5 @@ class LoginUser(Resource):
     @cross_origin()
     def post(self):
         data = request.get_json()
-        token = UserManager.login_user(data)
-        return {"token": token, "role": "user"}, 200
-
-
-class LoginModerator(Resource):
-    @validate_schema(RequestLoginUserSchema)
-    def post(self):
-        data = request.get_json()
-        token = UserManager.login_moderator(data)
-        return {"token": token, "role": "moderator"}, 200
-
-
-class LoginAdministrator(Resource):
-    @validate_schema(RequestLoginUserSchema)
-    def post(self):
-        data = request.get_json()
-        token = UserManager.login_admin(data)
-        return {"token": token, "role": "administator"}, 200
+        token, role = UserManager.login_user(data)
+        return {"token": token, "role": role}, 200

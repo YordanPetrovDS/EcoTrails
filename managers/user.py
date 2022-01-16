@@ -1,8 +1,7 @@
 from db import db
 from models.enums import RoleType
 from models.user import UserModel
-from psycopg2.errorcodes import UNIQUE_VIOLATION
-from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
+from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from managers.auth import AuthManager
@@ -18,20 +17,8 @@ class UserManager:
         """
         user_data["password"] = generate_password_hash(user_data["password"])
         user = UserModel(**user_data)
-        # db.session.add(user)
-        # db.session.flush()
-        # return AuthManager.encode_token(user)
-
-        try:
-            db.session.add(user)
-            db.session.flush()
-        except Exception as ex:
-            if ex.orig.pgcode == UNIQUE_VIOLATION:
-                raise BadRequest("Please login")
-            else:
-                raise InternalServerError(
-                    "Server is unavailable. Please try again later"
-                )
+        db.session.add(user)
+        db.session.flush()
         return AuthManager.encode_token(user)
 
     @staticmethod
@@ -42,11 +29,9 @@ class UserManager:
         :return: token
         """
         try:
-            user = UserModel.query.filter_by(
-                email=user_data["email"], role=RoleType.user
-            ).first()
+            user = UserModel.query.filter_by(email=user_data["email"]).first()
             if user and check_password_hash(user.password, user_data["password"]):
-                return AuthManager.encode_token(user)
+                return AuthManager.encode_token(user), user.role.value
             raise Exception
         except Exception:
             raise BadRequest("Invalid email or password")
