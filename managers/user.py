@@ -119,3 +119,7 @@ class UserManager:
         db.session.add(moderator)
         db.session.flush()
         return moderator
+
+
+def some_func(x, y):
+    return x, y
